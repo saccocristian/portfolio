@@ -126,3 +126,67 @@ h3 { font-size: 1.3rem; margin-top: 15px; text-transform: uppercase; font-weight
     .project-card-horizontal { flex-direction: column-reverse; }
     .project-image-container { border-left: none; border-bottom: var(--border); height: 250px; min-height: auto; }
 }
+
+/* --- GESTIONE IMMAGINI PIPELINE --- */
+.step-image {
+    flex: 1;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    background: #eee;
+    height: 350px; /* Altezza fissa uguale per tutte */
+    display: flex;
+    overflow: hidden;
+}
+
+.step-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Riempie il box senza deformarsi */
+    object-position: center;
+    display: block;
+    cursor: zoom-in; /* Indica che si può cliccare per ingrandire */
+    transition: opacity 0.2s;
+}
+
+.step-image img:hover {
+    opacity: 0.9;
+}
+
+/* --- LIGHTBOX OTTIMIZZATO --- */
+.lightbox-overlay {
+    display: flex; /* Cambiamo da none a flex */
+    visibility: hidden; /* Usiamo visibility e opacity per la velocità */
+    opacity: 0;
+    position: fixed;
+    z-index: 9999;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    cursor: zoom-out;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease-in-out, visibility 0.2s; /* Transizione rapida */
+    will-change: opacity; /* Suggerisce al browser di usare la GPU */
+}
+
+/* Quando l'overlay è attivo */
+.lightbox-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.lightbox-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border: 5px solid white;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    cursor: default;
+    transform: scale(0.95); /* Parte leggermente più piccola */
+    transition: transform 0.2s ease-out;
+}
+
+.lightbox-overlay.active img {
+    transform: scale(1); /* Effetto "pop" immediato */
+}

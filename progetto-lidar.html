@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline LiDAR | Cristian Sacco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .pipeline-step {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 60px;
+        }
+
+        .pipeline-step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .step-text { flex: 1; }
+        .step-image {
+            flex: 1;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            background: #eee;
+            height: 350px; /* Altezza fissa uniforme */
+            overflow: hidden;
+        }
+
+        .step-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            cursor: zoom-in;
+        }
+
+        .step-number {
+            background: var(--dark);
+            color: white;
+            padding: 5px 15px;
+            font-weight: 900;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Stile aggiuntivo per il tasto finale */
+        .home-footer {
+            max-width: 1100px;
+            margin: 0 auto 80px auto;
+            text-align: center;
+        }
+
+        @media (max-width: 850px) {
+            .pipeline-step, .pipeline-step:nth-child(even) {
+                flex-direction: column;
+            }
+            .step-image { width: 100%; height: 250px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header style="background: var(--accent);">
+        <a href="index.html" class="badge">← TORNA ALLA HOME</a>
+        <h1 style="margin-top: 20px;">Pipeline di Analisi LiDAR</h1>
+        <p style="font-weight: 700;">Un sistema modulare per il monitoraggio e la sicurezza dei ciclisti in ambito Smart City.</p>
+    </header>
+
+    <div class="full-width-section" style="margin-top: 40px;">
+
+        <div class="pipeline-step">
+            <div class="step-text">
+                <span class="step-number">01</span>
+                <h2>Acquisizione dei dati</h2>
+                <p>In questa fase iniziale, un sensore <strong>LiDAR RoboSense Ruby Plus</strong> raccoglie dati grezzi dall'ambiente sotto forma di nuvole di punti (point cloud) 3D. Il corretto posizionamento del sensore è critico per inquadrare la geometria del ciclista ed evitare occlusioni.</p>
+            </div>
+            <div class="step-image">
+                <img src="assets/cyclist.png" alt="Acquisizione LiDAR">
+            </div>
+        </div>
+
+        <div class="pipeline-step">
+            <div class="step-text">
+                <span class="step-number">02</span>
+                <h2>Pre-elaborazione</h2>
+                <p>I dati vengono "puliti" per alleggerire il carico computazionale. Le operazioni includono:</p>
+                <ul style="margin-top: 10px; list-style: none;">
+                    <li><strong>ROI:</strong> Limitazione dell'area di interesse.</li>
+                    <li><strong>Ground Removal:</strong> Rimozione dei punti del terreno.</li>
+                    <li><strong>Voxel-grid:</strong> Downsampling spaziale per una geometria più stabile.</li>
+                </ul>
+            </div>
+            <div class="step-image">
+                <img src="assets/preprocessing_after.png" alt="Pre-processing Point Cloud">
+            </div>
+        </div>
+
+        <div class="pipeline-step">
+            <div class="step-text">
+                <span class="step-number">03</span>
+                <h2>Inferenza (Deep Learning)</h2>
+                <p>Utilizzo del modello <strong>SECOND (Sparsely Embedded Convolutional Detection)</strong>. Il sistema trasforma i dati strutturali in informazioni semantiche, restituendo per ogni oggetto:</p>
+                <ul style="margin-top: 10px; list-style: none;">
+                    <li>✓ Bounding Box 3D (Coordinate, dimensioni, orientamento).</li>
+                    <li>✓ Label di classe (Ciclista).</li>
+                    <li>✓ Score di confidenza.</li>
+                </ul>
+            </div>
+            <div class="step-image">
+                <img src="assets/bike_close.png" alt="Inference SECOND Model">
+            </div>
+        </div>
+
+        <div class="pipeline-step">
+            <div class="step-text">
+                <span class="step-number">04</span>
+                <h2>Post-elaborazione</h2>
+                <p>Raffinamento dei risultati tramite soglie di confidenza e filtraggio delle classi non pertinenti. I bounding box vengono re-intersecati con la nuvola di punti grezza per estrarre con massima precisione i soli punti appartenenti all'utente e alla bicicletta.</p>
+            </div>
+            <div class="step-image">
+                <img src="assets/mtb_bike.png" alt="Post-processing e Filtering">
+            </div>
+        </div>
+
+        <div class="pipeline-step">
+            <div class="step-text">
+                <span class="step-number">05</span>
+                <h2>Analisi e Indicatori</h2>
+                <p>Conversione dei dati geometrici in indicatori quantitativi:</p>
+                <ul style="margin-top: 10px; list-style: none;">
+                    <li><strong>Traiettoria:</strong> Mapping del percorso nel tempo.</li>
+                    <li><strong>Dinamica:</strong> Velocità media, massima e distanza euclidea.</li>
+                    <li><strong>Angolo di inclinazione:</strong> Stima del piano della bici rispetto al suolo.</li>
+                    <li><strong>Classificazione:</strong> Uso di SVM e Random Forest per distinguere MTB da Bici da corsa.</li>
+                </ul>
+            </div>
+            <div class="step-image">
+                <img src="assets/trajectory.png" alt="Analisi finale indicatori">
+            </div>
+        </div>
+
+    </div>
+
+    <div class="full-width-section" style="text-align: center; margin-bottom: 40px;">
+        <section style="background: var(--dark); color: white;">
+            <h2 style="background: var(--secondary); color: black;">Approfondisci il Codice</h2>
+            <p style="margin-bottom: 20px;">Tutto il codice sorgente, i dataset e i risultati dei test sono disponibili sulla repository ufficiale.</p>
+            <a href="https://github.com/saccocristian/lidar" target="_blank" class="btn-project" style="background: white;">VEDI SU GITHUB</a>
+        </section>
+    </div>
+
+    <div class="home-footer">
+        <a href="index.html" class="btn-project" style="background: var(--primary); padding: 20px 40px; font-size: 1.2rem;">
+            ← TORNA ALLA HOME
+        </a>
+    </div>
+
+    <div id="lightbox" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="Ingrandimento">
+    </div>
+
+    <script>
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => {
+                if(!lightbox.classList.contains('active')) lightboxImg.src = '';
+            }, 200);
+        }
+
+        document.querySelectorAll('.step-image img').forEach(img => {
+            img.addEventListener('mouseenter', () => {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = img.src;
+                document.head.appendChild(link);
+            });
+
+            img.onclick = function() {
+                openLightbox(this.src);
+            }
+        });
+    </script>
+</body>
+</html>
